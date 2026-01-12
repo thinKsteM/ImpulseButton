@@ -1,0 +1,377 @@
+:root {
+  /* Dynamic Glossy Colors Palette - Stronger Gradients */
+  --c-blue-top: #00aaff;
+  --c-blue-bot: #0055aa;
+  --c-blue-border: #003366;
+
+  --c-orange-top: #ffaa00;
+  --c-orange-bot: #cc6600;
+  --c-orange-border: #884400;
+
+  --c-green-top: #55dd00;
+  --c-green-bot: #228800;
+  --c-green-border: #114400;
+
+  --c-pink-top: #ff66cc;
+  --c-pink-bot: #cc0066;
+  --c-pink-border: #660033;
+
+  --c-yellow-top: #ffee00;
+  --c-yellow-bot: #ddaa00;
+  --c-yellow-border: #997700;
+
+  --c-red-top: #ff5555;
+  --c-red-bot: #aa0000;
+  --c-red-border: #660000;
+
+  --c-purple-top: #aa55ff;
+  --c-purple-bot: #5500aa;
+  --c-purple-border: #330066;
+
+  --c-cyan-top: #00eeee;
+  --c-cyan-bot: #009999;
+  --c-cyan-border: #005555;
+
+  --background-radial: radial-gradient(circle at center, #001f3f 0%, #000000 100%);
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+
+  --btn-radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--background-radial);
+  color: #ffffff;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 600px;
+  /* Mobile width constraint */
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.btn-settings {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s;
+}
+
+.btn-settings:active {
+  transform: rotate(45deg);
+}
+
+/* Edit Badge */
+.edit-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  color: var(--c-blue-bot);
+  border: 2px solid var(--c-blue-bot);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.edit-badge:active {
+  transform: scale(0.9);
+}
+
+/* The Grid - Fills remaining screen */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px 20px 20px 20px;
+  /* Fill remaining height after 60px header */
+  height: calc(100vh - 60px);
+  width: 100%;
+}
+
+/* Base Card Button Style */
+.card-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  border-radius: var(--btn-radius);
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+
+  /* Thick 3D Border Effect */
+  box-shadow:
+    0 6px 0px rgba(0, 0, 0, 0.3),
+    /* Depth shadow below button */
+    0 10px 20px rgba(0, 0, 0, 0.5),
+    /* Drop shadow */
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    /* Top highlight */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  /* Inner bottom shadow */
+
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.card-btn::after {
+  /* Glossy Shine Overlay */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-top-left-radius: var(--btn-radius);
+  border-top-right-radius: var(--btn-radius);
+  pointer-events: none;
+}
+
+.card-btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0px rgba(0, 0, 0, 0.3),
+    0 4px 10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.btn-text {
+  position: relative;
+  z-index: 2;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.3;
+  width: 90%;
+}
+
+/* Color Variants */
+.color-0 {
+  background: linear-gradient(to bottom, var(--c-blue-top), var(--c-blue-bot));
+  border-bottom: 4px solid var(--c-blue-border);
+}
+
+.color-1 {
+  background: linear-gradient(to bottom, var(--c-orange-top), var(--c-orange-bot));
+  border-bottom: 4px solid var(--c-orange-border);
+}
+
+.color-2 {
+  background: linear-gradient(to bottom, var(--c-green-top), var(--c-green-bot));
+  border-bottom: 4px solid var(--c-green-border);
+}
+
+.color-3 {
+  background: linear-gradient(to bottom, var(--c-pink-top), var(--c-pink-bot));
+  border-bottom: 4px solid var(--c-pink-border);
+}
+
+.color-4 {
+  background: linear-gradient(to bottom, var(--c-yellow-top), var(--c-yellow-bot));
+  border-bottom: 4px solid var(--c-yellow-border);
+  color: #443300;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.color-5 {
+  background: linear-gradient(to bottom, var(--c-red-top), var(--c-red-bot));
+  border-bottom: 4px solid var(--c-red-border);
+}
+
+.color-6 {
+  background: linear-gradient(to bottom, var(--c-purple-top), var(--c-purple-bot));
+  border-bottom: 4px solid var(--c-purple-border);
+}
+
+.color-7 {
+  background: linear-gradient(to bottom, var(--c-cyan-top), var(--c-cyan-bot));
+  border-bottom: 4px solid var(--c-cyan-border);
+}
+
+
+/* Standard Elements & Form Styles (Dark Theme) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  backdrop-filter: blur(5px);
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #aaa;
+}
+
+.empty-state button {
+  padding: 12px 24px;
+  background: var(--c-blue-bot);
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+/* Views & Containers */
+.view-container {
+  position: absolute;
+  inset: 0;
+  background: var(--background-radial);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+}
+
+.image-upload-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Detail Flow */
+.view-gradient-bg {
+  background: radial-gradient(circle, #333 0%, #000 100%);
+}
+
+.message-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.btn-destructive {
+  background: transparent;
+  border: 1px solid #ff4136;
+  color: #ff4136;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #ccc;
+  padding: 10px;
+  margin-top: 10px;
+}
