@@ -2,53 +2,130 @@
  * App Logic for "Desire Button" (欲ボタン)
  */
 
-// Storage Module
+// --- IndexedDB Wrapper ---
+const DB_NAME = 'yoku_buttons_db';
+const DB_VERSION = 1;
+const STORE_NAME = 'buttons';
+
+const DB = {
+    db: null,
+    init: () => {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+            request.onerror = (e) => {
+                console.error("DB Open Error", e);
+                reject(e);
+            };
+
+            request.onsuccess = (e) => {
+                DB.db = e.target.result;
+                resolve(DB.db);
+            };
+
+            request.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                }
+            };
+        });
+    },
+    getAll: () => {
+        return new Promise((resolve, reject) => {
+            if (!DB.db) return reject("DB not initialized");
+            const transaction = DB.db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject(request.error);
+        });
+    },
+    get: (id) => {
+        return new Promise((resolve, reject) => {
+            if (!DB.db) return reject("DB not initialized");
+            const transaction = DB.db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(id);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    },
+    put: (item) => {
+        return new Promise((resolve, reject) => {
+            if (!DB.db) return reject("DB not initialized");
+            const transaction = DB.db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put(item);
+            request.onsuccess = () => resolve(true);
+            request.onerror = (e) => {
+                console.error("DB Put Error", e);
+                resolve(false); // Return false on failure
+            };
+        });
+    },
+    delete: (id) => {
+        return new Promise((resolve, reject) => {
+            if (!DB.db) return reject("DB not initialized");
+            const transaction = DB.db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete(id);
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => resolve(false);
+        });
+    }
+};
+
+// --- Storage Module (Async) ---
 const Storage = {
-    KEY: "yoku-buttons",
-    getButtons: () => {
+    OLD_KEY: "yoku-buttons", // For migration
+
+    // Check if migration is needed
+    migrateIfNeeded: async () => {
         try {
-            const data = localStorage.getItem(Storage.KEY);
-            return data ? JSON.parse(data) : [];
-        } catch {
-            return [];
-        }
-    },
-    saveButtons: (buttons) => {
-        try {
-            localStorage.setItem(Storage.KEY, JSON.stringify(buttons));
+            const raw = localStorage.getItem(Storage.OLD_KEY);
+            if (raw) {
+                const buttons = JSON.parse(raw);
+                if (Array.isArray(buttons) && buttons.length > 0) {
+                    console.log(`Migrating ${buttons.length} items from LocalStorage...`);
+                    for (const btn of buttons) {
+                        await DB.put(btn);
+                    }
+                    localStorage.removeItem(Storage.OLD_KEY); // Clear old data
+                    console.log("Migration complete.");
+                }
+            }
         } catch (e) {
-            console.error("Failed to save buttons", e);
+            console.error("Migration failed", e);
         }
     },
-    addButton: (input) => {
-        const buttons = Storage.getButtons();
+
+    getButtons: async () => {
+        return await DB.getAll();
+    },
+    addButton: async (input) => {
         const newButton = {
             ...input,
             id: Date.now().toString(),
             createdAt: Date.now(),
         };
-        buttons.push(newButton);
-        Storage.saveButtons(buttons);
-        return newButton;
+        const success = await DB.put(newButton);
+        return success ? newButton : null;
     },
-    getButton: (id) => {
-        const buttons = Storage.getButtons();
-        return buttons.find(b => b.id === id);
+    getButton: async (id) => {
+        return await DB.get(id);
     },
-    updateButton: (id, input) => {
-        const buttons = Storage.getButtons();
-        const index = buttons.findIndex(b => b.id === id);
-        if (index !== -1) {
-            buttons[index] = { ...buttons[index], ...input };
-            Storage.saveButtons(buttons);
-            return buttons[index];
+    updateButton: async (id, input) => {
+        const current = await DB.get(id);
+        if (current) {
+            const updated = { ...current, ...input };
+            const success = await DB.put(updated);
+            return success ? updated : null;
         }
         return null;
     },
-    deleteButton: (id) => {
-        const buttons = Storage.getButtons();
-        const filtered = buttons.filter(b => b.id !== id);
-        Storage.saveButtons(filtered);
+    deleteButton: async (id) => {
+        await DB.delete(id);
     }
 };
 
@@ -56,7 +133,7 @@ const Storage = {
 let currentView = 'home';
 let activeButtonId = null;
 let isEditMode = false;
-let editingButtonId = null; // For the form
+let editingButtonId = null;
 
 // DOM Elements
 const views = {
@@ -68,8 +145,21 @@ const views = {
 
 const homeContent = document.getElementById('home-content');
 
+// --- Initialization ---
+async function initApp() {
+    try {
+        await DB.init();
+        await Storage.migrateIfNeeded();
+        // Initial Navi
+        navigateTo('home');
+    } catch (e) {
+        alert("データベースの起動に失敗しました。アプリを再読み込みしてください。");
+        console.error(e);
+    }
+}
+
 // Navigation
-function navigateTo(viewId, data = null) {
+async function navigateTo(viewId, data = null) {
     // Hide all views
     Object.values(views).forEach(el => el.classList.add('hidden'));
 
@@ -81,22 +171,22 @@ function navigateTo(viewId, data = null) {
 
     // View specific logic
     if (viewId === 'home') {
-        renderHome();
+        await renderHome();
     } else if (viewId === 'add') {
-        // data can be ID for editing
         if (data && typeof data === 'string') {
-            loadEditForm(data);
+            await loadEditForm(data);
         } else {
             resetAddForm();
         }
     } else if (viewId === 'buttonImage' && data) {
-        setupButtonFlow(data);
+        await setupButtonFlow(data);
     }
 }
 
 // Render Home Grid
-function renderHome() {
-    const buttons = Storage.getButtons();
+async function renderHome() {
+    // Show spinner if needed? For now just wait.
+    const buttons = await Storage.getButtons();
     homeContent.innerHTML = '';
 
     // Always create grid
@@ -113,8 +203,7 @@ function renderHome() {
         // Click handler logic
         btnEl.onclick = (e) => {
             if (isEditMode) {
-                // In edit mode, clicking the main button does nothing or handles delete?
-                // Requirement says "Edit Badge" handles edit. 
+                // In edit mode, clicking the main button does nothing
             } else {
                 activeButtonId = btn.id;
                 navigateTo('buttonImage', btn.id);
@@ -142,15 +231,12 @@ function renderHome() {
         grid.appendChild(btnEl);
     });
 
-    // Append "Add Button" as the next item
-    // Only if we want to allow adding more? Assuming yes.
-    // Style it distinctively
+    // Append "Add Button"
     const addBtnEl = document.createElement('button');
     addBtnEl.className = 'card-btn';
     addBtnEl.style.background = 'rgba(255,255,255,0.1)';
     addBtnEl.style.border = '2px dashed rgba(255,255,255,0.3)';
-    addBtnEl.style.boxShadow = 'none'; // Flat for add button? Or keep consistent? 
-    // Let's keep it consistent shape but different style
+    addBtnEl.style.boxShadow = 'none';
 
     addBtnEl.onclick = () => navigateTo('add');
     addBtnEl.innerHTML = `
@@ -163,22 +249,22 @@ function renderHome() {
 
 // Handle clicking the edit badge
 window.handleEditClick = (e, id) => {
-    e.stopPropagation(); // Prevent main button click
+    e.stopPropagation();
     navigateTo('add', id);
 };
 
-window.handleDeleteClick = (e, id) => {
+window.handleDeleteClick = async (e, id) => {
     e.stopPropagation();
     if (confirm("本当にこの欲ボタンを削除しますか？")) {
-        Storage.deleteButton(id);
-        renderHome();
+        await Storage.deleteButton(id);
+        await renderHome();
     }
 };
 
 // Toggle Edit Mode
 document.querySelector('.btn-settings').addEventListener('click', () => {
     isEditMode = !isEditMode;
-    renderHome();
+    renderHome(); // renderHome is async but here we don't need to await it necessarily as it updates DOM
 });
 
 
@@ -191,7 +277,7 @@ const inputName = document.getElementById('input-name');
 const inputMessage = document.getElementById('input-message');
 const countName = document.getElementById('count-name');
 const countMessage = document.getElementById('count-message');
-const formTitle = document.querySelector('#view-add .header-title'); // To change title
+const formTitle = document.querySelector('#view-add .header-title');
 
 let currentImageBase64 = null;
 
@@ -208,9 +294,9 @@ function resetAddForm() {
     hideErrors();
 }
 
-function loadEditForm(id) {
+async function loadEditForm(id) {
     editingButtonId = id;
-    const button = Storage.getButton(id);
+    const button = await Storage.getButton(id); // Async
     if (!button) {
         navigateTo('home');
         return;
@@ -234,23 +320,105 @@ function loadEditForm(id) {
     hideErrors();
 }
 
+// Image Compression Helper
+function compressImage(file, maxWidth, quality, callback) {
+    try {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth || height > maxWidth) {
+                        if (width > height) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else {
+                            width = Math.round((width * maxWidth) / height);
+                            height = maxWidth;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    callback(dataUrl);
+                } catch (err) {
+                    console.error("Compression error:", err);
+                    alert("画像の処理中にエラーが発生しました。");
+                    // Reset processing state if error occurs inside loop (needs manual reset in caller or callback with error)
+                    // For simplicity here, we might need a better error callback pattern, 
+                    // but alert + silence is better than crash.
+                    // Let's pass null to callback to signal failure.
+                    callback(null);
+                }
+            };
+            img.onerror = () => {
+                alert("画像の読み込みに失敗しました。");
+                callback(null);
+            };
+            img.src = event.target.result;
+        };
+        reader.onerror = () => {
+            alert("ファイルの読み込みに失敗しました。");
+            callback(null);
+        };
+        reader.readAsDataURL(file);
+    } catch (e) {
+        console.error("FileReader error:", e);
+        alert("予期せぬエラーが発生しました。");
+        callback(null);
+    }
+}
+
+// File Input
+let isProcessing = false;
+const btnSubmit = addForm.querySelector('button[type="submit"]');
+
 bgInputImage.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-        alert("画像は5MB以下にしてください");
+    if (file.size > 20 * 1024 * 1024) { // Increased to 20MB
+        alert("画像サイズが大きすぎます（20MB以下にしてください）");
+        e.target.value = ""; // Clear input
         return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        currentImageBase64 = event.target.result;
-        imgPreview.src = currentImageBase64;
-        imgPreview.classList.remove('hidden');
-        uploadPlaceholder.classList.add('hidden');
-    };
-    reader.readAsDataURL(file);
+    // Set Processing State
+    isProcessing = true;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "画像処理中...";
+    btnSubmit.style.opacity = "0.7";
+
+    uploadPlaceholder.classList.add('hidden');
+    imgPreview.classList.add('hidden');
+    // Maybe show a spinner or text in placeholder?
+    // For now, let's just keep placeholder hidden and maybe show the text in submit button.
+
+    // Compress: Max 600px, 0.6 quality (More aggressive)
+    compressImage(file, 600, 0.6, (base64) => {
+        isProcessing = false;
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "保存";
+        btnSubmit.style.opacity = "1";
+
+        if (base64) {
+            currentImageBase64 = base64;
+            imgPreview.src = currentImageBase64;
+            imgPreview.classList.remove('hidden');
+        } else {
+            // Failed
+            uploadPlaceholder.classList.remove('hidden');
+            e.target.value = ""; // Reset input
+        }
+    });
 });
 
 inputName.addEventListener('input', (e) => {
@@ -261,9 +429,14 @@ inputMessage.addEventListener('input', (e) => {
     countMessage.textContent = e.target.value.length;
 });
 
-addForm.addEventListener('submit', (e) => {
+addForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideErrors();
+
+    if (isProcessing) {
+        alert("画像を処理中です。少々お待ちください。");
+        return;
+    }
 
     const name = inputName.value.trim();
     const message = inputMessage.value.trim();
@@ -285,23 +458,38 @@ addForm.addEventListener('submit', (e) => {
 
     if (hasError) return;
 
+    // Show saving indicator?
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "保存中...";
+
+    let result = null;
+
     if (editingButtonId) {
-        Storage.updateButton(editingButtonId, {
+        result = await Storage.updateButton(editingButtonId, {
             name,
             message,
             imageUrl: currentImageBase64
         });
     } else {
-        Storage.addButton({
+        result = await Storage.addButton({
             name,
             message,
             imageUrl: currentImageBase64
         });
     }
 
-    // Reset edit mode when going back home? Or keep it?
-    // Usually keep it, but user can toggle off.
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = "保存";
+
+    if (!result) {
+        alert("保存に失敗しました。");
+        return;
+    }
+
+    // Success
     isEditMode = false;
+    // No need to reset form here as navigateTo('add') does it, but navigateTo('home') doesn't touch it.
+    // It's fine.
     navigateTo('home');
 });
 
@@ -322,8 +510,8 @@ const flowImage = document.getElementById('flow-image');
 const flowName = document.getElementById('flow-name');
 const flowMessage = document.getElementById('flow-message');
 
-function setupButtonFlow(id) {
-    const button = Storage.getButton(id);
+async function setupButtonFlow(id) {
+    const button = await Storage.getButton(id); // Async
     if (!button) {
         navigateTo('home');
         return;
@@ -386,6 +574,7 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-// Init - expose to global for debugging if needed
+// Init
 window.navigateTo = navigateTo;
-navigateTo('home');
+// navigateTo('home'); // Removed direct call, use initApp
+initApp();
