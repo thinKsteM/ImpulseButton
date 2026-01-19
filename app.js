@@ -195,6 +195,29 @@ const Storage = {
         button[key] = (button[key] || 0) + 1;
 
         await Storage.updateButton(id, button);
+    },
+
+    // Reset all stats
+    resetStats: async () => {
+        if (!DB.db) return;
+
+        // Reset global stats
+        const tx = DB.db.transaction([STATS_STORE], 'readwrite');
+        const store = tx.objectStore(STATS_STORE);
+
+        await new Promise((resolve) => {
+            store.put({ key: 'patience', value: 0 });
+            store.put({ key: 'desire', value: 0 });
+            resolve();
+        });
+
+        // Reset all button stats
+        const buttons = await Storage.getButtons();
+        for (const button of buttons) {
+            button.patienceCount = 0;
+            button.desireCount = 0;
+            await DB.put(button);
+        }
     }
 };
 
@@ -366,11 +389,20 @@ window.handleDeleteClick = async (e, id) => {
 };
 
 // Toggle Edit Mode
-// Toggle Edit Mode
 document.querySelector('.btn-settings').addEventListener('click', (e) => {
     e.stopPropagation();
     isEditMode = !isEditMode;
     renderHome(); // renderHome is async but here we don't need to await it necessarily as it updates DOM
+});
+
+// Reset History Button
+document.querySelector('.btn-reset-history').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (confirm('本当に全ての履歴をリセットしますか？\n\nこの操作は取り消せません。')) {
+        await Storage.resetStats();
+        await renderHome();
+        await renderHeaderStats();
+    }
 });
 
 // Exit Edit Mode on outside click

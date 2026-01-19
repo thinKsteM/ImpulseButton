@@ -146,6 +146,13 @@ body {
   /* Reset line-height to center properly */
 }
 
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
 .btn-settings {
   background: transparent;
   border: none;
@@ -153,12 +160,27 @@ body {
   cursor: pointer;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
   transition: transform 0.2s;
-  /* Push to the right edge since title is absolute */
-  margin-left: auto;
 }
 
 .btn-settings:active {
   transform: rotate(45deg);
+}
+
+.btn-reset-history {
+  background: transparent;
+  border: none;
+  color: #ff4444;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn-reset-history:active {
+  opacity: 0.7;
 }
 
 /* Header Stats */
@@ -269,46 +291,18 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: none;
-  border-radius: var(--btn-radius);
+  border-radius: 24px;
   color: white;
   text-decoration: none;
   cursor: pointer;
-
-  /* Thick 3D Border Effect */
-  box-shadow:
-    0 6px 0px rgba(0, 0, 0, 0.3),
-    /* Depth shadow below button */
-    0 10px 20px rgba(0, 0, 0, 0.5),
-    /* Drop shadow */
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    /* Top highlight */
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  /* Inner bottom shadow */
-
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-
-.card-btn::after {
-  /* Glossy Shine Overlay */
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border-top-left-radius: var(--btn-radius);
-  border-top-right-radius: var(--btn-radius);
-  pointer-events: none;
+  background: rgba(20, 20, 40, 0.6);
+  backdrop-filter: blur(10px);
+  transition: transform 0.1s, opacity 0.1s;
 }
 
 .card-btn:active {
-  transform: translateY(4px);
-  box-shadow:
-    0 2px 0px rgba(0, 0, 0, 0.3),
-    0 4px 10px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 .btn-text {
@@ -323,45 +317,35 @@ body {
 
 /* Color Variants */
 .color-0 {
-  background: linear-gradient(to bottom, var(--c-blue-top), var(--c-blue-bot));
-  border-bottom: 4px solid var(--c-blue-border);
+  border: 3px solid var(--c-blue-top);
 }
 
 .color-1 {
-  background: linear-gradient(to bottom, var(--c-orange-top), var(--c-orange-bot));
-  border-bottom: 4px solid var(--c-orange-border);
+  border: 3px solid var(--c-orange-top);
 }
 
 .color-2 {
-  background: linear-gradient(to bottom, var(--c-green-top), var(--c-green-bot));
-  border-bottom: 4px solid var(--c-green-border);
+  border: 3px solid var(--c-green-top);
 }
 
 .color-3 {
-  background: linear-gradient(to bottom, var(--c-pink-top), var(--c-pink-bot));
-  border-bottom: 4px solid var(--c-pink-border);
+  border: 3px solid var(--c-pink-top);
 }
 
 .color-4 {
-  background: linear-gradient(to bottom, var(--c-yellow-top), var(--c-yellow-bot));
-  border-bottom: 4px solid var(--c-yellow-border);
-  color: #443300;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 3px solid var(--c-yellow-top);
 }
 
 .color-5 {
-  background: linear-gradient(to bottom, var(--c-red-top), var(--c-red-bot));
-  border-bottom: 4px solid var(--c-red-border);
+  border: 3px solid var(--c-red-top);
 }
 
 .color-6 {
-  background: linear-gradient(to bottom, var(--c-purple-top), var(--c-purple-bot));
-  border-bottom: 4px solid var(--c-purple-border);
+  border: 3px solid var(--c-purple-top);
 }
 
 .color-7 {
-  background: linear-gradient(to bottom, var(--c-cyan-top), var(--c-cyan-bot));
-  border-bottom: 4px solid var(--c-cyan-border);
+  border: 3px solid var(--c-cyan-top);
 }
 
 
@@ -697,108 +681,113 @@ body {
   color: #ff6666;
   font-size: 1.25rem;
   font-weight: bold;
-}/* --- Neon Glow Flow Buttons --- */
+}
+
+/* --- Neon Glow Flow Buttons --- */
 #btn-flow-do,
 #btn-flow-dont {
-    position: relative;
-    /* Size kept as is from grid/padding, but appearance changes */
-    background-clip: padding-box, border-box;
-    background-origin: padding-box, border-box;
-    border: 2px solid transparent;
-    /* Prepare for gradient border */
-    border-radius: 12px;
-    /* Slightly rounded */
+  position: relative;
+  /* Size kept as is from grid/padding, but appearance changes */
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  border: 2px solid transparent;
+  /* Prepare for gradient border */
+  border-radius: 12px;
+  /* Slightly rounded */
 
-    /* Glassmorphism */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+  /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
-    /* Text */
-    font-weight: 800;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  /* Text */
+  font-weight: 800;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    /* Reset default button flatness if any */
-    box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Reset default button flatness if any */
+  box-shadow: none;
 }
 
 /* "Do It" - Red/Orange Neon (Desire) */
 #btn-flow-do {
-    /* Dark semi-transparent bg + Red gradient border */
-    background-image:
-        linear-gradient(to bottom, rgba(40, 0, 0, 0.6), rgba(20, 0, 0, 0.8)),
-        linear-gradient(135deg, #ff4136, #ff8c00);
+  /* Dark semi-transparent bg + Red gradient border */
+  background-image:
+    linear-gradient(to bottom, rgba(40, 0, 0, 0.6), rgba(20, 0, 0, 0.8)),
+    linear-gradient(135deg, #ff4136, #ff8c00);
 
-    color: #ffcccc;
+  color: #ffcccc;
 
-    /* Outer Glow + Inner Highlight */
-    box-shadow:
-        0 0 10px rgba(255, 65, 54, 0.3),
-        0 4px 15px rgba(0, 0, 0, 0.5),
-        /* Drop shadow */
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  /* Outer Glow + Inner Highlight */
+  box-shadow:
+    0 0 10px rgba(255, 65, 54, 0.3),
+    0 4px 15px rgba(0, 0, 0, 0.5),
+    /* Drop shadow */
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 #btn-flow-do:hover {
-    /* Brighter glow */
-    box-shadow:
-        0 0 15px rgba(255, 65, 54, 0.5),
-        0 0 30px rgba(255, 65, 54, 0.2),
-        0 4px 20px rgba(0, 0, 0, 0.6);
-    transform: translateY(-1px);
+  /* Brighter glow */
+  box-shadow:
+    0 0 15px rgba(255, 65, 54, 0.5),
+    0 0 30px rgba(255, 65, 54, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
 }
 
 #btn-flow-do:active {
-    /* Pressed down + tighter glow */
-    transform: translateY(2px) scale(0.98);
-    box-shadow:
-        0 0 5px rgba(255, 65, 54, 0.4),
-        inset 0 2px 5px rgba(0, 0, 0, 0.3);
-    filter: brightness(0.9);
+  /* Pressed down + tighter glow */
+  transform: translateY(2px) scale(0.98);
+  box-shadow:
+    0 0 5px rgba(255, 65, 54, 0.4),
+    inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.9);
 }
 
 /* "Don't Do It" - Blue/Cyan Neon (Patience) */
 #btn-flow-dont {
-    /* Dark semi-transparent bg + Blue gradient border */
-    background-image:
-        linear-gradient(to bottom, rgba(0, 20, 40, 0.6), rgba(0, 10, 20, 0.8)),
-        linear-gradient(135deg, #007bff, #00d2ff);
+  /* Dark semi-transparent bg + Blue gradient border */
+  background-image:
+    linear-gradient(to bottom, rgba(0, 20, 40, 0.6), rgba(0, 10, 20, 0.8)),
+    linear-gradient(135deg, #007bff, #00d2ff);
 
-    color: #ccffff;
+  color: #ccffff;
 
-    /* Outer Glow + Inner Highlight */
-    box-shadow:
-        0 0 10px rgba(0, 123, 255, 0.3),
-        0 4px 15px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  /* Outer Glow + Inner Highlight */
+  box-shadow:
+    0 0 10px rgba(0, 123, 255, 0.3),
+    0 4px 15px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 #btn-flow-dont:hover {
-    box-shadow:
-        0 0 15px rgba(0, 123, 255, 0.5),
-        0 0 30px rgba(0, 123, 255, 0.2),
-        0 4px 20px rgba(0, 0, 0, 0.6);
-    transform: translateY(-1px);
+  box-shadow:
+    0 0 15px rgba(0, 123, 255, 0.5),
+    0 0 30px rgba(0, 123, 255, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
 }
 
 #btn-flow-dont:active {
-    transform: translateY(2px) scale(0.98);
-    box-shadow:
-        0 0 5px rgba(0, 123, 255, 0.4),
-        inset 0 2px 5px rgba(0, 0, 0, 0.3);
-    filter: brightness(0.9);
+  transform: translateY(2px) scale(0.98);
+  box-shadow:
+    0 0 5px rgba(0, 123, 255, 0.4),
+    inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.9);
 }
 
 
 /* Button Layout Fix - Force 2-line display */
 #btn-flow-do,
 #btn-flow-dont {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-.btn-main-text { font-size: 2rem; line-height: 1; display: inline-block; margin-bottom: 0; }
-
-
+.btn-main-text {
+  font-size: 2rem;
+  line-height: 1;
+  display: inline-block;
+  margin-bottom: 0;
+}
