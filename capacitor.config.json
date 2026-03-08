@@ -1,0 +1,12 @@
+{
+  "appId": "com.example.yokubutton",
+  "appName": "欲ボタン",
+  "webDir": "www",
+  "server": {
+    "iosScheme": "https"
+  },
+  "ios": {
+    "backgroundColor": "#000000",
+    "contentInset": "always"
+  }
+}

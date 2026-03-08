@@ -1,0 +1,15 @@
+{
+  "name": "yoku-button",
+  "version": "1.0.0",
+  "private": true,
+  "description": "欲ボタン - 欲望管理アプリ",
+  "scripts": {
+    "sync": "npx cap sync ios",
+    "open": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0"
+  }
+}

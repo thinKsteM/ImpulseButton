@@ -1,0 +1,798 @@
+:root {
+  /* Dynamic Glossy Colors Palette - Stronger Gradients */
+  --c-blue-top: #00aaff;
+  --c-blue-bot: #0055aa;
+  --c-blue-border: #003366;
+
+  --c-orange-top: #ffaa00;
+  --c-orange-bot: #cc6600;
+  --c-orange-border: #884400;
+
+  --c-green-top: #55dd00;
+  --c-green-bot: #228800;
+  --c-green-border: #114400;
+
+  --c-pink-top: #ff66cc;
+  --c-pink-bot: #cc0066;
+  --c-pink-border: #660033;
+
+  --c-yellow-top: #ffee00;
+  --c-yellow-bot: #ddaa00;
+  --c-yellow-border: #997700;
+
+  --c-red-top: #ff5555;
+  --c-red-bot: #aa0000;
+  --c-red-border: #660000;
+
+  --c-purple-top: #aa55ff;
+  --c-purple-bot: #5500aa;
+  --c-purple-border: #330066;
+
+  --c-cyan-top: #00eeee;
+  --c-cyan-bot: #009999;
+  --c-cyan-border: #005555;
+
+  --background-radial: radial-gradient(circle at center, #001f3f 0%, #000000 100%);
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+
+  --btn-radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--background-radial);
+  color: #ffffff;
+  /* Use dynamic viewport height for mobile */
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  position: fixed;
+  /* Prevent body scroll rubber-banding */
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  /* iOS Safe Area */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.view-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-radial);
+}
+
+/* Ensure content takes remaining space */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+/* Header */
+.header {
+  height: calc(60px + env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  padding-top: env(safe-area-inset-top);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+  position: relative;
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Center the title in the Home View */
+#view-home .header .header-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.header-actions .btn {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Ensure vertical alignment with icon */
+.header-actions .header-title {
+  display: flex;
+  /* Helps alignment */
+  align-items: center;
+  height: 100%;
+  /* Match parent to align with button? Or just line-height */
+  margin-left: 0.5rem;
+  line-height: 1;
+  /* Reset line-height to center properly */
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.btn-settings {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s;
+}
+
+.btn-settings:active {
+  transform: rotate(45deg);
+}
+
+.btn-reset-history {
+  background: transparent;
+  border: none;
+  color: #ff4444;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn-reset-history:active {
+  opacity: 0.7;
+}
+
+/* Header Stats */
+.header-stats {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item {
+  width: 100%;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  /* Center content */
+  gap: 2rem;
+  /* Space between label and value */
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item.patience {
+  background: linear-gradient(to right, rgba(0, 123, 255, 0.1), rgba(0, 85, 170, 0.1));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: none;
+}
+
+.stat-item.desire {
+  background: linear-gradient(to right, rgba(255, 85, 85, 0.1), rgba(170, 0, 0, 0.1));
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.05em;
+  margin-bottom: 0;
+  /* Align based on the bottom item ("我慢できなかった") */
+  flex: 0 0 9rem;
+  text-align: left;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+  /* Ensure value area has some consistency */
+  flex: 0 0 3rem;
+  text-align: right;
+}
+
+.stat-item.patience .stat-value {
+  color: #66b3ff;
+}
+
+.stat-item.desire .stat-value {
+  color: #ff6666;
+}
+
+/* Edit Badge */
+.edit-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  color: var(--c-blue-bot);
+  border: 2px solid var(--c-blue-bot);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.edit-badge:active {
+  transform: scale(0.9);
+}
+
+/* The Grid - Fills remaining screen */
+/* The Grid - Fills remaining screen - Fixed row height */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 150px;
+  /* Fixed height for consistency */
+  gap: 12px;
+  /* Slight reduction for tighter packed feel */
+  padding: 16px 4px 20px 4px;
+  /* Minimal horizontal padding */
+  width: 100%;
+}
+
+/* Base Card Button Style */
+.card-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 24px;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  background: rgba(20, 20, 40, 0.6);
+  backdrop-filter: blur(10px);
+  transition: transform 0.1s, opacity 0.1s;
+}
+
+.card-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.btn-text {
+  position: relative;
+  z-index: 2;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.3;
+  width: 90%;
+}
+
+/* Color Variants */
+.color-0 {
+  border: 3px solid var(--c-blue-top);
+}
+
+.color-1 {
+  border: 3px solid var(--c-orange-top);
+}
+
+.color-2 {
+  border: 3px solid var(--c-green-top);
+}
+
+.color-3 {
+  border: 3px solid var(--c-pink-top);
+}
+
+.color-4 {
+  border: 3px solid var(--c-yellow-top);
+}
+
+.color-5 {
+  border: 3px solid var(--c-red-top);
+}
+
+.color-6 {
+  border: 3px solid var(--c-purple-top);
+}
+
+.color-7 {
+  border: 3px solid var(--c-cyan-top);
+}
+
+
+/* Standard Elements & Form Styles (Dark Theme) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  backdrop-filter: blur(5px);
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #aaa;
+}
+
+.empty-state button {
+  padding: 12px 24px;
+  background: var(--c-blue-bot);
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+/* Views & Containers */
+.view-container {
+  position: absolute;
+  inset: 0;
+  background: var(--background-radial);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.content {
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+}
+
+.image-upload-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  /* Vertical phone ratio */
+  max-width: 200px;
+  /* Thinner to fit vertical ratio on screen */
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Let clicks pass to input behind/above? No, input is z-index 5 above. */
+}
+
+.upload-placeholder span {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Cover or contain? User asked for range indication. Cover fills the square. */
+  border-radius: 6px;
+  pointer-events: none;
+  /* Let clicks pass to input */
+}
+
+/* Edit Badge overrides or additions */
+.delete-badge {
+  position: absolute;
+  top: -8px;
+  right: 36px;
+  /* Positioned to the left of the edit badge */
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  color: #ff4136;
+  border: 2px solid #ff4136;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  /* Adjusted for SVG size */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.delete-badge:active {
+  transform: scale(0.9);
+}
+
+/* Detail Flow */
+.view-gradient-bg {
+  background: radial-gradient(circle, #333 0%, #000 100%);
+}
+
+.full-screen-image {
+  width: 100vw;
+  height: 100dvh;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.tap-overlay-text {
+  position: absolute;
+  bottom: calc(80px + env(safe-area-inset-bottom));
+  /* High enough to be seen */
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  pointer-events: none;
+  /* Let taps pass through if needed, though we tap the whole container */
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+.message-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid transparent;
+  /* Match outline button height */
+  font-weight: bold;
+}
+
+/* Add btn-outline definition if missing or update */
+.btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+  /* Match btn-primary spacing */
+  font-weight: bold;
+}
+
+.btn-destructive {
+  background: transparent;
+  border: 1px solid #ff4136;
+  color: #ff4136;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+
+.btn-ghost {
+  background: transparent;
+  color: #ccc;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.error-text {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  font-weight: bold;
+  display: block;
+}
+
+/* Color Selector */
+.color-selector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.color-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.color-option:active {
+  transform: scale(0.9);
+}
+
+.color-option.selected {
+  transform: scale(1.1);
+  border: 3px solid white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Flow Stats */
+.flow-stats {
+  margin-top: auto;
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.flow-stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.flow-stat-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.flow-stat-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0;
+}
+
+.flow-stat-val-patience {
+  color: #66b3ff;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.flow-stat-val-desire {
+  color: #ff6666;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* --- Neon Glow Flow Buttons --- */
+#btn-flow-do,
+#btn-flow-dont {
+  position: relative;
+  /* Size kept as is from grid/padding, but appearance changes */
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  border: 2px solid transparent;
+  /* Prepare for gradient border */
+  border-radius: 12px;
+  /* Slightly rounded */
+
+  /* Glassmorphism */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Text */
+  font-weight: 800;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Reset default button flatness if any */
+  box-shadow: none;
+}
+
+/* "Do It" - Red/Orange Neon (Desire) */
+#btn-flow-do {
+  /* Dark semi-transparent bg + Red gradient border */
+  background-image:
+    linear-gradient(to bottom, rgba(40, 0, 0, 0.6), rgba(20, 0, 0, 0.8)),
+    linear-gradient(135deg, #ff4136, #ff8c00);
+
+  color: #ffcccc;
+
+  /* Outer Glow + Inner Highlight */
+  box-shadow:
+    0 0 10px rgba(255, 65, 54, 0.3),
+    0 4px 15px rgba(0, 0, 0, 0.5),
+    /* Drop shadow */
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+#btn-flow-do:hover {
+  /* Brighter glow */
+  box-shadow:
+    0 0 15px rgba(255, 65, 54, 0.5),
+    0 0 30px rgba(255, 65, 54, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#btn-flow-do:active {
+  /* Pressed down + tighter glow */
+  transform: translateY(2px) scale(0.98);
+  box-shadow:
+    0 0 5px rgba(255, 65, 54, 0.4),
+    inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.9);
+}
+
+/* "Don't Do It" - Blue/Cyan Neon (Patience) */
+#btn-flow-dont {
+  /* Dark semi-transparent bg + Blue gradient border */
+  background-image:
+    linear-gradient(to bottom, rgba(0, 20, 40, 0.6), rgba(0, 10, 20, 0.8)),
+    linear-gradient(135deg, #007bff, #00d2ff);
+
+  color: #ccffff;
+
+  /* Outer Glow + Inner Highlight */
+  box-shadow:
+    0 0 10px rgba(0, 123, 255, 0.3),
+    0 4px 15px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+#btn-flow-dont:hover {
+  box-shadow:
+    0 0 15px rgba(0, 123, 255, 0.5),
+    0 0 30px rgba(0, 123, 255, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+#btn-flow-dont:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow:
+    0 0 5px rgba(0, 123, 255, 0.4),
+    inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  filter: brightness(0.9);
+}
+
+
+/* Button Layout Fix - Force 2-line display */
+#btn-flow-do,
+#btn-flow-dont {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.btn-main-text {
+  font-size: 2rem;
+  line-height: 1;
+  display: inline-block;
+  margin-bottom: 0;
+}
