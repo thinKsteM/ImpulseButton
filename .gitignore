@@ -1,3 +1,9 @@
 node_modules/
 plans/
 .claude/
+
+# macOS
+.DS_Store
+
+# Xcode
+*.xcworkspace/xcshareddata/swiftpm/
